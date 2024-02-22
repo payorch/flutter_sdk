@@ -14,45 +14,44 @@ import 'package:geideapay/common/extensions.dart';
 import 'package:http/http.dart' as http;
 
 class PayService with BaseApiService implements PayServiceContract {
-
-   @override
-  Future<OrderApiResponse> directPay(
-      Map<String, Object?>? fields, String publicKey, String apiPassword) async
-  {
+  @override
+  Future<OrderApiResponse> directPay(Map<String, Object?>? fields,
+      String publicKey, String apiPassword, String baseUrl) async {
     var url = '$baseUrl/v1/direct/pay';
     return genResponse(url, fields, publicKey, apiPassword);
   }
 
-
-   @override
-   Future<OrderApiResponse> payWithToken(
-       Map<String, Object?>? fields, String publicKey, String apiPassword) async
-   {
-     var url = '$baseUrl/v1/direct/pay/token';
-     return genResponse(url, fields, publicKey, apiPassword);
-   }
+  @override
+  Future<OrderApiResponse> payWithToken(Map<String, Object?>? fields,
+      String publicKey, String apiPassword, String baseUrl) async {
+    var url = '$baseUrl/v1/direct/pay/token';
+    return genResponse(url, fields, publicKey, apiPassword);
+  }
 
   @override
-  Future<OrderApiResponse> cancel(Map<String, Object?>? fields, String publicKey, String apiPassword) async {
+  Future<OrderApiResponse> cancel(Map<String, Object?>? fields,
+      String publicKey, String apiPassword, String baseUrl) async {
     var url = '$baseUrl/v1/direct/cancel';
     return genResponse(url, fields, publicKey, apiPassword);
   }
 
-   @override
-   Future<OrderApiResponse> capture(Map<String, Object?>? fields, String publicKey, String apiPassword) async {
-     var url = '$baseUrl/v1/direct/capture';
-     return genResponse(url, fields, publicKey, apiPassword);
-   }
+  @override
+  Future<OrderApiResponse> capture(Map<String, Object?>? fields,
+      String publicKey, String apiPassword, String baseUrl) async {
+    var url = '$baseUrl/v1/direct/capture';
+    return genResponse(url, fields, publicKey, apiPassword);
+  }
 
   @override
-  Future<OrderApiResponse> refund(Map<String, Object?>? fields, String publicKey, String apiPassword) async {
-
+  Future<OrderApiResponse> refund(Map<String, Object?>? fields,
+      String publicKey, String apiPassword, String baseUrl) async {
     var url = '$baseUrl/v1/direct/refund';
     return genResponse(url, fields, publicKey, apiPassword);
   }
 
   @override
-  Future<OrderApiResponse> voidOperation(Map<String, Object?>? fields, String publicKey, String apiPassword) async {
+  Future<OrderApiResponse> voidOperation(Map<String, Object?>? fields,
+      String publicKey, String apiPassword, String baseUrl) async {
     var url = '$baseUrl/v1/direct/refund';
     return genResponse(url, fields, publicKey, apiPassword);
   }
@@ -61,8 +60,8 @@ class PayService with BaseApiService implements PayServiceContract {
       String publicKey, String apiPassword) async {
     genHeaders(publicKey, apiPassword);
 
-    http.Response response =
-        await http.post(url.toUri(), body: jsonEncode(fields), headers: headers);
+    http.Response response = await http.post(url.toUri(),
+        body: jsonEncode(fields), headers: headers);
     var body = response.body;
 
     var statusCode = response.statusCode;

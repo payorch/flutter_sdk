@@ -10,12 +10,11 @@ import 'package:geideapay/models/address.dart';
 import 'package:geideapay/widgets/checkout/checkout_options.dart';
 
 class CheckoutRequestBody extends BaseRequestBody {
-
   CheckoutOptions checkoutOptions;
 
   PaymentCard? _paymentCard;
   late String amount;
-  String? currency;
+  late String currency;
 
   String? callbackUrl;
   String? returnUrl;
@@ -36,7 +35,7 @@ class CheckoutRequestBody extends BaseRequestBody {
 
   CheckoutRequestBody(this.checkoutOptions, this._paymentCard) {
     amount = checkoutOptions.amount.toString();
-    currency = checkoutOptions.currency;
+    currency = checkoutOptions.currency.toString();
     callbackUrl = checkoutOptions.callbackUrl;
     returnUrl = checkoutOptions.returnUrl;
     merchantReferenceID = checkoutOptions.merchantReferenceID;
@@ -48,7 +47,7 @@ class CheckoutRequestBody extends BaseRequestBody {
     paymentIntentId = checkoutOptions.paymentIntentId;
 
     initiateAuthenticationRequestBody = InitiateAuthenticationRequestBody(
-       amount, currency, _paymentCard!.number,
+        amount, currency, _paymentCard!.number,
         callbackUrl: callbackUrl,
         returnUrl: returnUrl,
         cardOnFile: cardOnFile,

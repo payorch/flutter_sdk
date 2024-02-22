@@ -19,18 +19,18 @@ class AuthenticationTransactionManager extends BaseTransactionManager {
 
   AuthenticationTransactionManager(
       {required this.context,
-        required this.service,
-        this.initiateAuthenticationRequestBody,
-        this.payerAuthenticationRequestBody,
-        required String publicKey, required String apiPassword})
-      : super(publicKey: publicKey, apiPassword: apiPassword);
+      required this.service,
+      this.initiateAuthenticationRequestBody,
+      this.payerAuthenticationRequestBody,
+      required String publicKey,
+      required String apiPassword,
+      required String baseUrl})
+      : super(publicKey: publicKey, apiPassword: apiPassword, baseUrl: baseUrl);
 
   @override
-  postInitiate() {
+  postInitiate() {}
 
-  }
-
-  Future<AuthenticationApiResponse> initiateAuthentication() async{
+  Future<AuthenticationApiResponse> initiateAuthentication() async {
     try {
       await initiate();
       return sendInitiateAuthenticationOnServer();
@@ -39,17 +39,13 @@ class AuthenticationTransactionManager extends BaseTransactionManager {
         setProcessingOff();
       }
       return AuthenticationApiResponse(
-          detailedResponseMessage: e.toString(),
-          responseCode: "-1");
+          detailedResponseMessage: e.toString(), responseCode: "-1");
     }
   }
 
-
   Future<AuthenticationApiResponse> sendInitiateAuthenticationOnServer() {
-    Future<AuthenticationApiResponse> future =
-    service.initiateAuthentication(
-        initiateAuthenticationRequestBody?.paramsMap(),
-        publicKey, apiPassword);
+    Future<AuthenticationApiResponse> future = service.initiateAuthentication(
+        initiateAuthenticationRequestBody?.paramsMap(), publicKey, apiPassword, baseUrl);
     return handleAuthenticationApiServerResponse(future);
   }
 
@@ -75,16 +71,18 @@ class AuthenticationTransactionManager extends BaseTransactionManager {
     var status = apiResponse.responseMessage?.toLowerCase();
     var code = apiResponse.responseCode?.toLowerCase();
     if (status == 'success' && code == '000') {
-
-      if(context != null)
-      {
+      if (context != null) {
         String? responseHtml = apiResponse.html;
-        responseHtml = responseHtml!.replaceAll('target="redirectTo3ds1Frame"', 'target="_top"');
-        responseHtml = responseHtml.replaceAll('target="challengeFrame"', 'target="_top"');
+        responseHtml = responseHtml!
+            .replaceAll('target="redirectTo3ds1Frame"', 'target="_top"');
+        responseHtml =
+            responseHtml.replaceAll('target="challengeFrame"', 'target="_top"');
 
         await Navigator.push(
           context!,
-          MaterialPageRoute(builder: (context) => ThreeDSPage(responseHtml, payerAuthenticationRequestBody!.returnUrl!)),
+          MaterialPageRoute(
+              builder: (context) => ThreeDSPage(
+                  responseHtml, payerAuthenticationRequestBody!.returnUrl!)),
         );
       }
 
@@ -93,14 +91,15 @@ class AuthenticationTransactionManager extends BaseTransactionManager {
     }
 
     if (code != '000') {
-      return notifyAuthenticationProcessingError(AuthenticationException(apiResponse.detailedResponseMessage!));
+      return notifyAuthenticationProcessingError(
+          AuthenticationException(apiResponse.detailedResponseMessage!));
     }
 
-    return notifyAuthenticationProcessingError(GeideaException(Strings.unKnownResponse));
+    return notifyAuthenticationProcessingError(
+        GeideaException(Strings.unKnownResponse));
   }
 
-
-  Future<AuthenticationApiResponse> payerAuthentication() async{
+  Future<AuthenticationApiResponse> payerAuthentication() async {
     try {
       await initiate();
       return sendPayerAuthenticationOnServer();
@@ -109,18 +108,13 @@ class AuthenticationTransactionManager extends BaseTransactionManager {
         setProcessingOff();
       }
       return AuthenticationApiResponse(
-          detailedResponseMessage: e.toString(),
-          responseCode: "-1");
+          detailedResponseMessage: e.toString(), responseCode: "-1");
     }
   }
 
-
   Future<AuthenticationApiResponse> sendPayerAuthenticationOnServer() {
-    Future<AuthenticationApiResponse> future =
-    service.authenticatePayer(
-        payerAuthenticationRequestBody?.paramsMap(),
-        publicKey, apiPassword);
+    Future<AuthenticationApiResponse> future = service.authenticatePayer(
+        payerAuthenticationRequestBody?.paramsMap(), publicKey, apiPassword, baseUrl);
     return handleAuthenticationApiServerResponse(future);
   }
-
 }

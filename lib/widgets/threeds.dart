@@ -54,16 +54,17 @@ class _ThreeDSPageState extends State<ThreeDSPage> {
           javascriptMode: JavascriptMode.unrestricted,
           onWebViewCreated: (WebViewController webViewController) {
             _controller.complete(webViewController);
-            webViewController.currentUrl().then((value) => print("current url is " + value.toString()));
+            webViewController.currentUrl().then((value) =>
+                print("current url is " + value.toString()));
             _onLoadHtmlStringExample(webViewController, context, widget.html);
           },
           onProgress: (int progress) {
             print('WebView is loading (progress : $progress%)');
           },
-          onWebResourceError: (WebResourceError error){
+          onWebResourceError: (WebResourceError error) {
             print('WebResourceError: $error');
 
-            if(Platform.isIOS){
+            if (Platform.isIOS) {
               Navigator.of(context).pop();
             }
           },
@@ -72,13 +73,15 @@ class _ThreeDSPageState extends State<ThreeDSPage> {
           },
           onPageStarted: (String url) {
             print('Page started loading: $url');
-            if(url.startsWith(widget.returnURL))
-            {
+            if (url.startsWith(widget.returnURL)) {
               Navigator.of(context).pop();
             }
           },
           onPageFinished: (String url) {
             print('Page finished loading: $url');
+            // if (url.startsWith(widget.returnURL)) {
+            //   Navigator.of(context).pop();
+            // }
           },
           navigationDelegate: (webviewf.NavigationRequest request) {
             print('allowing navigation to $request');
@@ -90,6 +93,7 @@ class _ThreeDSPageState extends State<ThreeDSPage> {
       }),
     );
   }
+
   JavascriptChannel _toasterJavascriptChannel(BuildContext context) {
     return JavascriptChannel(
         name: 'Toaster',
@@ -101,8 +105,8 @@ class _ThreeDSPageState extends State<ThreeDSPage> {
         });
   }
 
-  Future<void> _onLoadHtmlStringExample(
-      WebViewController controller, BuildContext context, String? html) async {
+  Future<void> _onLoadHtmlStringExample(WebViewController controller,
+      BuildContext context, String? html) async {
     await controller.loadHtmlString(html!);
   }
 }

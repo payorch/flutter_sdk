@@ -7,6 +7,7 @@ abstract class BaseRequestBody {
   static const String fieldCallbackUrl = "callbackUrl";
   static const String fieldReturnUrl = "returnUrl";
   static const String fieldCardOnFile = "cardOnFile";
+  static const String fieldSessionId = "sessionId";
 
   static const String fieldOrderId = "orderId";
   static const String fieldThreeDSecureId = "threeDSecureId";
@@ -36,6 +37,20 @@ abstract class BaseRequestBody {
   static const String fieldStreet = "street";
   static const String fieldCity = "city";
   static const String fieldPostCode = "postCode";
+
+  static const String fieldTimestamp = "timestamp";
+  static const String fieldSignature = "signature";
+  static const String fieldLanguage = "language";
+  static const String fieldAppearance = "appearance";
+
+  static const String fieldShowEmail = "showEmail";
+  static const String fieldShowAddress = "showAddress";
+  static const String fieldShowPhone = "showPhone";
+  static const String fieldReceiptPage = "receiptPage";
+  static const String fieldUiMode = "uiMode";
+  static const String fieldStyles = "styles";
+
+  static const String fieldHideGeideaLogo = "hideGeideaLogo";
 
   Map<String, Object?> paramsMap();
 }
