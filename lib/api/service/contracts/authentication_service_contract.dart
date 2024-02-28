@@ -1,5 +1,4 @@
 import 'package:geideapay/api/response/authentication_api_response.dart';
-import 'package:geideapay/api/response/order_api_response.dart';
 
 abstract class AuthenticationServiceContract {
   Future<AuthenticationApiResponse> initiateAuthentication(

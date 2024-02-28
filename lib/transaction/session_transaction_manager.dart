@@ -2,16 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:geideapay/api/request/direct_session_request_body.dart';
-import 'package:geideapay/api/request/payer_authentication_request_body.dart';
-import 'package:geideapay/api/response/authentication_api_response.dart';
-import 'package:geideapay/api/request/initiate_authentication_request_body.dart';
 import 'package:geideapay/api/response/direct_session_api_response.dart';
-import 'package:geideapay/api/service/contracts/authentication_service_contract.dart';
 import 'package:geideapay/api/service/contracts/session_service_contract.dart';
 import 'package:geideapay/common/exceptions.dart';
 import 'package:geideapay/common/my_strings.dart';
 import 'package:geideapay/transaction/base_transaction_manager.dart';
-import 'package:geideapay/widgets/threeds.dart';
 
 class SessionTransactionManager extends BaseTransactionManager {
   DirectSessionRequestBody? directSessionRequestBody;

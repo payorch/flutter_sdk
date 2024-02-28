@@ -4,7 +4,7 @@ import 'package:geideapay/models/paymentMethod.dart';
 
 class Session extends BaseRequestBody {
   String? id;
-  String? amount;
+  double? amount;
   String? currency;
   String? callbackUrl;
   String? returnUrl;
@@ -61,6 +61,44 @@ class Session extends BaseRequestBody {
     this.metadata,
   );
 
+  Session.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    amount = json['amount'];
+    currency = json['currency'];
+    callbackUrl = json['callbackUrl'];
+    returnUrl = json['returnUrl'];
+    expiryDate = json['expiryDate'];
+    status = json['status'];
+    merchantId = json['merchantId'];
+    merchantPublicKey = json['merchantPublicKey'];
+    language = json['language'];
+    merchantReferenceId = json['merchantReferenceId'];
+    paymentIntentId = json['paymentIntentId'];
+    paymentOperation = json['paymentOperation'];
+    cardOnFile = json['cardOnFile'];
+    cofAgreement = json['cofAgreement'] != null
+        ? CofAgreement.fromJson(json['cofAgreement'])
+        : null;
+    initiatedBy = json['initiatedBy'];
+    tokenId = json['tokenId'];
+    customer = json['customer'];
+    platform =
+        json['platform'] != null ? Platform.fromJson(json['platform']) : null;
+    paymentOptions = json['paymentOptions'];
+    recurrence = json['recurrence'];
+    order = json['order'];
+    items = json['items'];
+    appearance = json['appearance'] != null
+        ? Appearance.fromJson(json['appearance'])
+        : null;
+    metadata =
+        json['metadata'] != null ? Metadata.fromJson(json['metadata']) : null;
+    paymentMethod = json['paymentMethod'] != null
+        ? PaymentMethod.fromMap(json['paymentMethod'])
+        : null;
+    subscription = json['subscription'];
+  }
+
   @override
   String toString() {
     return 'Session{id: $id, amount: $amount, currency: $currency, callbackUrl: $callbackUrl, returnUrl: $returnUrl, expiryDate: $expiryDate, status: $status, merchantId: $merchantId, merchantPublicKey: $merchantPublicKey, paymentIntentId: $paymentIntentId, paymentOperation: $paymentOperation, cardOnFile: $cardOnFile, initiatedBy: $initiatedBy, tokenId: $tokenId, customer: $customer, paymentOptions: $paymentOptions, recurrence: $recurrence, order: $order, items: $items, subscription: $subscription, appearance: $appearance, paymentMethod: $paymentMethod, platform: $platform, cofAgreement: $cofAgreement, metadata: $metadata}';
@@ -74,24 +112,24 @@ class Session extends BaseRequestBody {
     params[BaseRequestBody.fieldShowAddress] = amount;
     params[BaseRequestBody.fieldShowPhone] = currency;
     params[BaseRequestBody.fieldReceiptPage] = callbackUrl;
-    params[BaseRequestBody.fieldUiMode] = returnUrl;
-    params[BaseRequestBody.fieldUiMode] = expiryDate;
-    params[BaseRequestBody.fieldUiMode] = status;
-    params[BaseRequestBody.fieldUiMode] = merchantId;
-    params[BaseRequestBody.fieldUiMode] = merchantPublicKey;
-    params[BaseRequestBody.fieldUiMode] = language;
-    params[BaseRequestBody.fieldUiMode] = merchantReferenceId;
-    params[BaseRequestBody.fieldUiMode] = paymentIntentId;
-    params[BaseRequestBody.fieldUiMode] = paymentOperation;
-    params[BaseRequestBody.fieldUiMode] = cardOnFile;
-    params[BaseRequestBody.fieldUiMode] = initiatedBy;
-    params[BaseRequestBody.fieldUiMode] = tokenId;
-    params[BaseRequestBody.fieldUiMode] = customer;
-    params[BaseRequestBody.fieldUiMode] = paymentOptions;
-    params[BaseRequestBody.fieldUiMode] = recurrence;
-    params[BaseRequestBody.fieldUiMode] = order;
-    params[BaseRequestBody.fieldUiMode] = items;
-    params[BaseRequestBody.fieldUiMode] = subscription;
+    params[BaseRequestBody.fieldReturnUrl] = returnUrl;
+    params[BaseRequestBody.fieldExpiryDate] = expiryDate;
+    params['status'] = status;
+    params['merchantId'] = merchantId;
+    params['merchantPublicKey'] = merchantPublicKey;
+    params[BaseRequestBody.fieldLanguage] = language;
+    params[BaseRequestBody.fieldMerchantReferenceID] = merchantReferenceId;
+    params[BaseRequestBody.fieldPaymentIntentId] = paymentIntentId;
+    params[BaseRequestBody.fieldPaymentOperation] = paymentOperation;
+    params[BaseRequestBody.fieldCardOnFile] = cardOnFile;
+    params[BaseRequestBody.fieldInitiatedBy] = initiatedBy;
+    params[BaseRequestBody.fieldTokenId] = tokenId;
+    params['customer'] = customer;
+    params['paymentOptions'] = paymentOptions;
+    params['recurrence'] = recurrence;
+    params['order'] = order;
+    params['items'] = items;
+    params['subscription'] = subscription;
 
     if (appearance != null) {
       params["appearance"] = appearance!.toMap();
@@ -127,6 +165,13 @@ class Platform {
 
   Platform(this.name, this.version, this.pluginVersion, this.partnerId);
 
+  Platform.fromJson(Map<String, dynamic> json) {
+    name = json['name'];
+    version = json['version'];
+    pluginVersion = json['pluginVersion'];
+    partnerId = json['partnerId'];
+  }
+
   @override
   String toString() {
     return 'Platform{name: $name, version: $version, pluginVersion: $pluginVersion, partnerId: $partnerId}';
@@ -148,6 +193,11 @@ class CofAgreement {
 
   CofAgreement(this.id, this.type);
 
+  CofAgreement.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    type = json['type'];
+  }
+
   @override
   String toString() {
     return 'CofAgreement{id: $id, type: $type}';
@@ -165,6 +215,10 @@ class Metadata {
   String? custom;
 
   Metadata(this.custom);
+
+  Metadata.fromJson(Map<String, dynamic> json) {
+    custom = json['custom'];
+  }
 
   @override
   String toString() {

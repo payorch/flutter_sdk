@@ -3,7 +3,7 @@ import 'package:geideapay/models/appearance.dart';
 
 class DirectSessionRequestBody extends BaseRequestBody {
   // Mandatory fields
-  final String _amount;
+  final double _amount;
   final String _currency;
   final String timestamp;
   final String merchantReferenceID;
@@ -25,7 +25,7 @@ class DirectSessionRequestBody extends BaseRequestBody {
     this.signature, {
     this.callbackUrl,
     this.language,
-    this.cardOnFile,
+    this.cardOnFile = false,
     this.paymentIntentId,
     this.paymentOperation,
     this.appearance,

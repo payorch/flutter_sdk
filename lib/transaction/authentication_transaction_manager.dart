@@ -45,7 +45,10 @@ class AuthenticationTransactionManager extends BaseTransactionManager {
 
   Future<AuthenticationApiResponse> sendInitiateAuthenticationOnServer() {
     Future<AuthenticationApiResponse> future = service.initiateAuthentication(
-        initiateAuthenticationRequestBody?.paramsMap(), publicKey, apiPassword, baseUrl);
+        initiateAuthenticationRequestBody?.paramsMap(),
+        publicKey,
+        apiPassword,
+        baseUrl);
     return handleAuthenticationApiServerResponse(future);
   }
 
@@ -78,11 +81,13 @@ class AuthenticationTransactionManager extends BaseTransactionManager {
         responseHtml =
             responseHtml.replaceAll('target="challengeFrame"', 'target="_top"');
 
+        String? returnUrl = initiateAuthenticationRequestBody?.ReturnUrl;
+        returnUrl ??= payerAuthenticationRequestBody?.ReturnUrl;
+
         await Navigator.push(
           context!,
           MaterialPageRoute(
-              builder: (context) => ThreeDSPage(
-                  responseHtml, payerAuthenticationRequestBody!.returnUrl!)),
+              builder: (context) => ThreeDSPage(responseHtml, returnUrl)),
         );
       }
 
@@ -114,7 +119,10 @@ class AuthenticationTransactionManager extends BaseTransactionManager {
 
   Future<AuthenticationApiResponse> sendPayerAuthenticationOnServer() {
     Future<AuthenticationApiResponse> future = service.authenticatePayer(
-        payerAuthenticationRequestBody?.paramsMap(), publicKey, apiPassword, baseUrl);
+        payerAuthenticationRequestBody?.paramsMap(),
+        publicKey,
+        apiPassword,
+        baseUrl);
     return handleAuthenticationApiServerResponse(future);
   }
 }

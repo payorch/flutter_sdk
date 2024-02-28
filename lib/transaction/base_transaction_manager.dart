@@ -1,16 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
-
-import 'package:flutter/material.dart';
 import 'package:geideapay/api/response/authentication_api_response.dart';
 import 'package:geideapay/api/response/direct_session_api_response.dart';
 import 'package:geideapay/common/exceptions.dart';
-import 'package:geideapay/common/geidea.dart';
-import 'package:geideapay/common/utils.dart';
-import 'package:geideapay/models/card.dart';
 import 'package:geideapay/api/response/order_api_response.dart';
-import 'package:geideapay/models/transaction.dart';
 
 abstract class BaseTransactionManager {
   bool processing = false;

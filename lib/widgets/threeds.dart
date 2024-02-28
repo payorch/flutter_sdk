@@ -18,7 +18,7 @@ import 'package:flutter/material.dart';
 
 class ThreeDSPage extends StatefulWidget {
   final String? html;
-  final String returnURL;
+  final String? returnURL;
 
   const ThreeDSPage(this.html, this.returnURL, {Key? key}) : super(key: key);
 
@@ -27,9 +27,8 @@ class ThreeDSPage extends StatefulWidget {
 }
 
 class _ThreeDSPageState extends State<ThreeDSPage> {
-
   late final Completer<WebViewController> _controller =
-  Completer<WebViewController>();
+      Completer<WebViewController>();
 
   @override
   void initState() {
@@ -43,7 +42,6 @@ class _ThreeDSPageState extends State<ThreeDSPage> {
   double progress = 0;
   final urlController = TextEditingController();
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,8 +52,9 @@ class _ThreeDSPageState extends State<ThreeDSPage> {
           javascriptMode: JavascriptMode.unrestricted,
           onWebViewCreated: (WebViewController webViewController) {
             _controller.complete(webViewController);
-            webViewController.currentUrl().then((value) =>
-                print("current url is " + value.toString()));
+            webViewController
+                .currentUrl()
+                .then((value) => print("current url is " + value.toString()));
             _onLoadHtmlStringExample(webViewController, context, widget.html);
           },
           onProgress: (int progress) {
@@ -72,8 +71,8 @@ class _ThreeDSPageState extends State<ThreeDSPage> {
             _toasterJavascriptChannel(context),
           },
           onPageStarted: (String url) {
-            print('Page started loading: $url');
-            if (url.startsWith(widget.returnURL)) {
+            print('Page started loading: $url, ${widget.returnURL}');
+            if (url.startsWith(widget.returnURL ?? "")) {
               Navigator.of(context).pop();
             }
           },
@@ -85,6 +84,10 @@ class _ThreeDSPageState extends State<ThreeDSPage> {
           },
           navigationDelegate: (webviewf.NavigationRequest request) {
             print('allowing navigation to $request');
+            if (request.url.startsWith(widget.returnURL ?? "")) {
+              Navigator.of(context).pop();
+              return webviewf.NavigationDecision.prevent;
+            }
             return webviewf.NavigationDecision.navigate;
           },
           gestureNavigationEnabled: true,
@@ -105,8 +108,8 @@ class _ThreeDSPageState extends State<ThreeDSPage> {
         });
   }
 
-  Future<void> _onLoadHtmlStringExample(WebViewController controller,
-      BuildContext context, String? html) async {
+  Future<void> _onLoadHtmlStringExample(
+      WebViewController controller, BuildContext context, String? html) async {
     await controller.loadHtmlString(html!);
   }
 }

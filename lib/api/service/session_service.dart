@@ -15,7 +15,7 @@ class SessionService with BaseApiService implements SessionServiceContract {
   Future<DirectSessionApiResponse> createSession(Map<String, Object?>? fields,
       String publicKey, String apiPassword, String baseUrl) async {
     genHeaders(publicKey, apiPassword);
-    var url = 'https://api.merchant.geidea.net/payment-intent/api/v2/direct/session';
+    var url = '$baseUrl/payment-intent/api/v2/direct/session';
 
     http.Response response = await http.post(url.toUri(),
         body: jsonEncode(fields), headers: headers);

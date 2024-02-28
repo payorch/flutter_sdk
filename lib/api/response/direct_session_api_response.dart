@@ -10,7 +10,7 @@ class DirectSessionApiResponse extends ApiResponse {
   }
 
   DirectSessionApiResponse.fromMap(Map<String, dynamic> map) {
-    session = map['session'];
+    session = map["session"] == null ? null : Session.fromJson(map["session"]);
     fromMap(map);
   }
 

@@ -3,11 +3,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:geideapay/api/response/authentication_api_response.dart';
-import 'package:geideapay/api/response/order_api_response.dart';
 import 'package:geideapay/api/service/base_service.dart';
 import 'package:geideapay/api/service/contracts/authentication_service_contract.dart';
 import 'package:geideapay/common/exceptions.dart';
-import 'package:geideapay/common/geidea.dart';
 import 'package:geideapay/common/my_strings.dart';
 import 'package:geideapay/common/extensions.dart';
 import 'package:http/http.dart' as http;
@@ -22,7 +20,7 @@ class AuthenticationService
       String apiPassword,
       String baseUrl) async {
     genHeaders(publicKey, apiPassword);
-    var url = '$baseUrl/v3/direct/authenticate/initiate';
+    var url = '$baseUrl/pgw/api/v6/direct/authenticate/initiate';
 
     http.Response response = await http.post(url.toUri(),
         body: jsonEncode(fields), headers: headers);
@@ -48,7 +46,7 @@ class AuthenticationService
       String apiPassword,
       String baseUrl) async {
     genHeaders(publicKey, apiPassword);
-    var url = '$baseUrl/v3/direct/authenticate/payer';
+    var url = '$baseUrl/pgw/api/v6/direct/authenticate/payer';
 
     http.Response response = await http.post(url.toUri(),
         body: jsonEncode(fields), headers: headers);

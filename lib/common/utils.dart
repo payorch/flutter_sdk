@@ -1,5 +1,4 @@
 import 'package:crypto/crypto.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
 
@@ -61,4 +60,5 @@ class Utils {
 
     return base64.encode(hash.bytes);
   }
+
 }

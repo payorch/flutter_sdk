@@ -52,5 +52,20 @@ abstract class BaseRequestBody {
 
   static const String fieldHideGeideaLogo = "hideGeideaLogo";
 
+  static const String fieldMerchantName = "merchantName";
+  static const String fieldIsSetPaymentMethodEnabled =
+      "isSetPaymentMethodEnabled";
+  static const String fieldIsCreateCustomerEnabled = "isCreateCustomerEnabled";
+  static const String fieldRestrictPaymentMethods = "restrictPaymentMethods";
+  static const String fieldSource = "source";
+  static const String fieldReturnUrl2 = "ReturnUrl";
+  static const String fieldDeviceIdentification = "deviceIdentification";
+  static const String fieldCustomerPhoneNumber = "customerPhoneNumber";
+  static const String fieldCustomerPhoneCountryCode =
+      "customerPhoneCountryCode";
+  static const String fieldJavaEnabled = "javaEnabled";
+  static const String fieldJavaScriptEnabled = "javaScriptEnabled";
+  static const String fieldTimeZone = "timeZone";
+
   Map<String, Object?> paramsMap();
 }

@@ -10,14 +10,26 @@ class Appearance extends BaseRequestBody {
   Merchant? merchant;
 
   Appearance({
-    this.showEmail,
-    this.showAddress,
-    this.showPhone,
-    this.receiptPage,
+    this.showEmail = false,
+    this.showAddress = false,
+    this.showPhone = false,
+    this.receiptPage = false,
     this.uiMode,
     this.styles,
     this.merchant,
   });
+
+  Appearance.fromJson(Map<String, dynamic> json) {
+    merchant = json['merchant'] != null
+        ? new Merchant.fromJson(json['merchant'])
+        : null;
+    showEmail = json['showEmail'];
+    showAddress = json['showAddress'];
+    showPhone = json['showPhone'];
+    receiptPage = json['receiptPage'];
+    styles =
+        json['styles'] != null ? new Styles.fromJson(json['styles']) : null;
+  }
 
   @override
   String toString() {
@@ -73,6 +85,12 @@ class Styles {
 
   Styles(this.hideGeideaLogo, this.headerColor, this.hppProfile);
 
+  Styles.fromJson(Map<String, dynamic> json) {
+    headerColor = json['headerColor'];
+    hppProfile = json['hppProfile'];
+    hideGeideaLogo = json['hideGeideaLogo'];
+  }
+
   @override
   String toString() {
     return 'Styles{hideGeideaLogo: $hideGeideaLogo}';
@@ -93,6 +111,11 @@ class Merchant {
     this.name,
     this.logoUrl,
   );
+
+  Merchant.fromJson(Map<String, dynamic> json) {
+    name = json['name'];
+    logoUrl = json['logoUrl'];
+  }
 
   @override
   String toString() {
