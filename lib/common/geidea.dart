@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:geideapay/api/request/direct_session_request_body.dart';
 import 'package:geideapay/api/response/direct_session_api_response.dart';
 import 'package:geideapay/api/service/session_service.dart';
+import 'package:geideapay/models/card.dart';
 import 'package:geideapay/transaction/session_transaction_manager.dart';
 import 'package:path/path.dart' as Path;
 import 'package:flutter/material.dart';
@@ -116,8 +117,41 @@ class GeideapayPlugin {
       required CheckoutOptions checkoutOptions}) async {
     _performChecks();
 
-    CreditCardScreen creditCardScreen =
-        CreditCardScreen(checkoutOptions: checkoutOptions);
+    AuthenticationApiResponse? authenticationApiResponse;
+    CheckoutRequestBody? checkoutRequestBodyOfCardComplete;
+
+    CreditCardScreen creditCardScreen = CreditCardScreen(
+      checkoutOptions: checkoutOptions,
+      onCardEditComplete: (PaymentCard paymentCard) async {
+        authenticationApiResponse = null;
+
+        checkoutRequestBodyOfCardComplete =
+            CheckoutRequestBody(checkoutOptions, paymentCard);
+
+        checkoutRequestBodyOfCardComplete!
+            .updateDirectSessionRequestBody(publicKey, apiPassword);
+        print(checkoutRequestBodyOfCardComplete!.directSessionRequestBody);
+        DirectSessionApiResponse directSessionApiResponse = await createSession(
+          directSessionRequestBody:
+              checkoutRequestBodyOfCardComplete!.directSessionRequestBody,
+        );
+        print(directSessionApiResponse);
+        if (directSessionApiResponse.session == null) {
+          throw (directSessionApiResponse.detailedResponseMessage!);
+        }
+        checkoutRequestBodyOfCardComplete!
+            .updateInitiateAuthenticationRequestBody(
+                directSessionApiResponse.session);
+
+        print(checkoutRequestBodyOfCardComplete!
+            .initiateAuthenticationRequestBody);
+        authenticationApiResponse = await initiateAuthentication(
+            initiateAuthenticationRequestBody:
+                checkoutRequestBodyOfCardComplete!
+                    .initiateAuthenticationRequestBody);
+        print(authenticationApiResponse);
+      },
+    );
 
     var result = await Navigator.push(
       context,
@@ -130,7 +164,11 @@ class GeideapayPlugin {
           CheckoutRequestBody(checkoutOptions, creditCardScreen.paymentCard);
       try {
         return _Geideapay(publicKey, apiPassword, baseUrl).checkout(
-            checkoutRequestBody: checkoutRequestBody, context: context);
+          checkoutRequestBody:
+              checkoutRequestBodyOfCardComplete ?? checkoutRequestBody,
+          context: context,
+          authenticationApiResponse: authenticationApiResponse,
+        );
       } catch (e) {
         throw e;
       }
@@ -258,29 +296,33 @@ class _Geideapay {
 
   _Geideapay(this.publicKey, this.apiPassword, this.baseUrl);
 
-  Future<OrderApiResponse> checkout(
-      {required CheckoutRequestBody checkoutRequestBody,
-      required BuildContext context}) async {
+  Future<OrderApiResponse> checkout({
+    required CheckoutRequestBody checkoutRequestBody,
+    required BuildContext context,
+    AuthenticationApiResponse? authenticationApiResponse,
+  }) async {
     try {
-      checkoutRequestBody.updateDirectSessionRequestBody(
-          publicKey, apiPassword);
-      print(checkoutRequestBody.directSessionRequestBody);
-      DirectSessionApiResponse directSessionApiResponse = await createSession(
-        directSessionRequestBody: checkoutRequestBody.directSessionRequestBody,
-      );
-      print(directSessionApiResponse);
-      if (directSessionApiResponse.session == null) {
-        throw (directSessionApiResponse.detailedResponseMessage!);
-      }
-      checkoutRequestBody.updateInitiateAuthenticationRequestBody(
-          directSessionApiResponse.session);
+      if (authenticationApiResponse == null) {
+        checkoutRequestBody.updateDirectSessionRequestBody(
+            publicKey, apiPassword);
+        print(checkoutRequestBody.directSessionRequestBody);
+        DirectSessionApiResponse directSessionApiResponse = await createSession(
+          directSessionRequestBody:
+              checkoutRequestBody.directSessionRequestBody,
+        );
+        print(directSessionApiResponse);
+        if (directSessionApiResponse.session == null) {
+          throw (directSessionApiResponse.detailedResponseMessage!);
+        }
+        checkoutRequestBody.updateInitiateAuthenticationRequestBody(
+            directSessionApiResponse.session);
 
-      print(checkoutRequestBody.initiateAuthenticationRequestBody);
-      AuthenticationApiResponse authenticationApiResponse =
-          await initiateAuthentication(
-              initiateAuthenticationRequestBody:
-                  checkoutRequestBody.initiateAuthenticationRequestBody);
-      print(authenticationApiResponse);
+        print(checkoutRequestBody.initiateAuthenticationRequestBody);
+        authenticationApiResponse = await initiateAuthentication(
+            initiateAuthenticationRequestBody:
+                checkoutRequestBody.initiateAuthenticationRequestBody);
+        print(authenticationApiResponse);
+      }
 
       if (authenticationApiResponse.orderId == null) {
         throw (authenticationApiResponse.detailedResponseMessage!);
