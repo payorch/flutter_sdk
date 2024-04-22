@@ -1,9 +1,18 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:geideapay/api/request/base64_image_request_body.dart';
 import 'package:geideapay/api/request/direct_session_request_body.dart';
+import 'package:geideapay/api/request/request_to_pay_request_body.dart';
+import 'package:geideapay/api/response/base64_image_api_response.dart';
 import 'package:geideapay/api/response/direct_session_api_response.dart';
+import 'package:geideapay/api/response/request_pay_api_response.dart';
+import 'package:geideapay/api/service/base64_image_service.dart';
 import 'package:geideapay/api/service/session_service.dart';
+import 'package:geideapay/common/my_http_overrides.dart';
 import 'package:geideapay/models/card.dart';
+import 'package:geideapay/transaction/base64_image_transaction_manager.dart';
 import 'package:geideapay/transaction/session_transaction_manager.dart';
+import 'package:geideapay/widgets/qr_code/qr_code_screen.dart';
 import 'package:path/path.dart' as Path;
 import 'package:flutter/material.dart';
 import 'package:geideapay/api/request/cancel_request_body.dart';
@@ -58,6 +67,8 @@ class GeideapayPlugin {
     }());
 
     if (sdkInitialized) return;
+
+    HttpOverrides.global = MyHttpOverrides();
 
     _publicKey = publicKey;
     _apiPassword = apiPassword;
@@ -280,6 +291,77 @@ class GeideapayPlugin {
         .capture(captureRequestBody: captureRequestBody);
   }
 
+  Future<RequestPayApiResponse> generateQRCodeImage(
+      {required BuildContext context,
+      required CheckoutOptions checkoutOptions}) async {
+    _performChecks();
+
+    final _geideapay = _Geideapay(publicKey, apiPassword, baseUrl);
+
+    CheckoutRequestBody checkoutRequestBodyOfQRCode =
+        CheckoutRequestBody(checkoutOptions, null);
+
+    checkoutRequestBodyOfQRCode.updateDirectSessionRequestBody(
+        publicKey, apiPassword);
+
+    DirectSessionApiResponse directSessionApiResponse =
+        await _geideapay.createSession(
+            directSessionRequestBody:
+                checkoutRequestBodyOfQRCode.directSessionRequestBody);
+    print(directSessionApiResponse);
+    if (directSessionApiResponse.session == null) {
+      throw (directSessionApiResponse.detailedResponseMessage!);
+    }
+
+    Base64ImageApiResponse base64imageApiResponse =
+        await _geideapay.generateQRCodeImage(
+            base64imageRequestBody: Base64ImageRequestBody(
+                directSessionApiResponse.session?.merchantPublicKey,
+                directSessionApiResponse.session?.id));
+
+    print(base64imageApiResponse);
+    if (base64imageApiResponse.image == null) {
+      throw (base64imageApiResponse.detailedResponseMessage!);
+    }
+
+    RequestPayApiResponse requestPayApiResponse = await _geideapay.requestToPay(
+        requestToPayRequestBody: RequestToPayRequestBody(
+      checkoutOptions.qrConfiguration?.phoneNumber,
+      directSessionApiResponse.session?.merchantPublicKey,
+      base64imageApiResponse.paymentIntentId,
+      directSessionApiResponse.session?.id,
+    ));
+
+    print(requestPayApiResponse);
+    if (requestPayApiResponse.responseCode != '00000') {
+      throw (requestPayApiResponse.detailedResponseMessage!);
+    }
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => QRCodeScreen(
+          currency: directSessionApiResponse.session?.currency.toString(),
+          amount: directSessionApiResponse.session?.amount.toString(),
+          base64ImageString: base64imageApiResponse.image.toString(),
+          progressColor: checkoutOptions.payButtonColor,
+          progressBackgroundColor: checkoutOptions.backgroundColor,
+          progressTextColor: checkoutOptions.textColor,
+          backgroundColor: checkoutOptions.backgroundColor,
+          textColor: checkoutOptions.textColor,
+          title: checkoutOptions.qrConfiguration?.qrTitle,
+          loadingTitle: checkoutOptions.qrConfiguration?.qrLoadingTitle,
+          infoTitle1: checkoutOptions.qrConfiguration?.qrInfoTitle1,
+          infoTitle2: checkoutOptions.qrConfiguration?.qrInfoTitle2,
+          infoTitle3: checkoutOptions.qrConfiguration?.qrInfoTitle3,
+          infoTitle4: checkoutOptions.qrConfiguration?.qrInfoTitle4,
+        ),
+      ),
+    );
+
+    return requestPayApiResponse;
+  }
+
   _validateSdkInitialized() {
     if (!sdkInitialized) {
       throw GeideaSdkNotInitializedException(
@@ -463,6 +545,28 @@ class _Geideapay {
             baseUrl: baseUrl,
             captureRequestBody: captureRequestBody)
         .capture();
+  }
+
+  Future<Base64ImageApiResponse> generateQRCodeImage(
+      {required Base64ImageRequestBody base64imageRequestBody}) {
+    return Base64ImageTransactionManager(
+            service: Base64ImageService(),
+            apiPassword: apiPassword,
+            publicKey: publicKey,
+            baseUrl: baseUrl,
+            base64imageRequestBody: base64imageRequestBody)
+        .generateImage();
+  }
+
+  Future<RequestPayApiResponse> requestToPay(
+      {required RequestToPayRequestBody requestToPayRequestBody}) {
+    return PayTransactionManager(
+            service: PayService(),
+            apiPassword: apiPassword,
+            publicKey: publicKey,
+            baseUrl: baseUrl,
+            requestToPayRequestBody: requestToPayRequestBody)
+        .requestToPay();
   }
 }
 
