@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:geideapay/api/request/base64_image_request_body.dart';
 import 'package:geideapay/api/request/direct_session_request_body.dart';
 import 'package:geideapay/api/request/request_to_pay_request_body.dart';
@@ -8,7 +7,7 @@ import 'package:geideapay/api/response/direct_session_api_response.dart';
 import 'package:geideapay/api/response/request_pay_api_response.dart';
 import 'package:geideapay/api/service/base64_image_service.dart';
 import 'package:geideapay/api/service/session_service.dart';
-import 'package:geideapay/common/my_http_overrides.dart';
+import 'package:geideapay/common/server_environments.dart';
 import 'package:geideapay/models/card.dart';
 import 'package:geideapay/transaction/base64_image_transaction_manager.dart';
 import 'package:geideapay/transaction/session_transaction_manager.dart';
@@ -39,20 +38,20 @@ class GeideapayPlugin {
   bool _sdkInitialized = false;
   String _publicKey = "";
   String _apiPassword = "";
-  String _baseUrl = "";
+  ServerEnvironmentModel? _serverEnvironmentModel;
 
   /// Initialize the Geideapay object. It should be called as early as possible
   /// (preferably in initState() of the Widget.
   ///
   /// [publicKey] - your Geideapay public key. This is mandatory
   /// [apiPassword] - your Geideapay API Password. This is mandatory
-  /// [baseUrl] - your Geideapay API Base Url. This is mandatory eg: https://api.merchant.geidea.net/pgw/api
+  /// [serverEnvironment] - your Geideapay API Base Url. This is mandatory eg: https://api.merchant.geidea.net/pgw/api
   ///
   ///
   initialize(
       {required String publicKey,
       required String apiPassword,
-      required String baseUrl}) async {
+      required ServerEnvironmentModel? serverEnvironment}) async {
     assert(() {
       if (publicKey.isEmpty) {
         throw GeideaException('publicKey cannot be null or empty');
@@ -60,7 +59,7 @@ class GeideapayPlugin {
       if (apiPassword.isEmpty) {
         throw GeideaException('API Password cannot be null or empty');
       }
-      if (baseUrl.isEmpty) {
+      if (serverEnvironment == null) {
         throw GeideaException('API Base Url cannot be null or empty');
       }
       return true;
@@ -68,18 +67,16 @@ class GeideapayPlugin {
 
     if (sdkInitialized) return;
 
-    HttpOverrides.global = MyHttpOverrides();
-
     _publicKey = publicKey;
     _apiPassword = apiPassword;
-    _baseUrl = baseUrl;
+    _serverEnvironmentModel = serverEnvironment;
     _sdkInitialized = true;
   }
 
   dispose() {
     _publicKey = "";
     _apiPassword = "";
-    _baseUrl = "";
+    _serverEnvironmentModel = null;
     _sdkInitialized = false;
   }
 
@@ -97,10 +94,10 @@ class GeideapayPlugin {
     return _apiPassword;
   }
 
-  String get baseUrl {
+  ServerEnvironmentModel? get serverEnvironmentModel {
     // Validate that the sdk has been initialized
     _validateSdkInitialized();
-    return _baseUrl;
+    return _serverEnvironmentModel;
   }
 
   void _performChecks() {
@@ -113,7 +110,7 @@ class GeideapayPlugin {
     if (_apiPassword.isEmpty) {
       throw AuthenticationException(Utils.getPasswordErrorMsg('API password'));
     }
-    if (_baseUrl.isEmpty) {
+    if (_serverEnvironmentModel == null) {
       throw AuthenticationException(Utils.getBaseUrlErrorMsg('API Base Url'));
     }
   }
@@ -174,7 +171,9 @@ class GeideapayPlugin {
       CheckoutRequestBody checkoutRequestBody =
           CheckoutRequestBody(checkoutOptions, creditCardScreen.paymentCard);
       try {
-        return _Geideapay(publicKey, apiPassword, baseUrl).checkout(
+        return _Geideapay(
+                publicKey, apiPassword, serverEnvironmentModel!.apiBaseUrl)
+            .checkout(
           checkoutRequestBody:
               checkoutRequestBodyOfCardComplete ?? checkoutRequestBody,
           context: context,
@@ -198,7 +197,8 @@ class GeideapayPlugin {
       {required DirectSessionRequestBody directSessionRequestBody}) {
     _performChecks();
 
-    return _Geideapay(publicKey, apiPassword, baseUrl)
+    return _Geideapay(
+            publicKey, apiPassword, serverEnvironmentModel!.apiBaseUrl)
         .createSession(directSessionRequestBody: directSessionRequestBody);
   }
 
@@ -212,8 +212,11 @@ class GeideapayPlugin {
           initiateAuthenticationRequestBody}) {
     _performChecks();
 
-    return _Geideapay(publicKey, apiPassword, baseUrl).initiateAuthentication(
-        initiateAuthenticationRequestBody: initiateAuthenticationRequestBody);
+    return _Geideapay(
+            publicKey, apiPassword, serverEnvironmentModel!.apiBaseUrl)
+        .initiateAuthentication(
+            initiateAuthenticationRequestBody:
+                initiateAuthenticationRequestBody);
   }
 
   /// Payer Authentication operation
@@ -226,9 +229,11 @@ class GeideapayPlugin {
       required BuildContext context}) {
     _performChecks();
 
-    return _Geideapay(publicKey, apiPassword, baseUrl).payerAuthentication(
-        payerAuthenticationRequestBody: payerAuthenticationRequestBody,
-        context: context);
+    return _Geideapay(
+            publicKey, apiPassword, serverEnvironmentModel!.apiBaseUrl)
+        .payerAuthentication(
+            payerAuthenticationRequestBody: payerAuthenticationRequestBody,
+            context: context);
   }
 
   /// Direct Pay operation
@@ -240,7 +245,8 @@ class GeideapayPlugin {
       {required PayDirectRequestBody payDirectRequestBody}) {
     _performChecks();
 
-    return _Geideapay(publicKey, apiPassword, baseUrl)
+    return _Geideapay(
+            publicKey, apiPassword, serverEnvironmentModel!.apiBaseUrl)
         .directPay(payDirectRequestBody: payDirectRequestBody);
   }
 
@@ -253,7 +259,8 @@ class GeideapayPlugin {
       {required RefundRequestBody refundRequestBody}) {
     _performChecks();
 
-    return _Geideapay(publicKey, apiPassword, baseUrl)
+    return _Geideapay(
+            publicKey, apiPassword, serverEnvironmentModel!.apiBaseUrl)
         .refund(refundRequestBody: refundRequestBody);
   }
 
@@ -266,7 +273,8 @@ class GeideapayPlugin {
       {required CancelRequestBody cancelRequestBody}) {
     _performChecks();
 
-    return _Geideapay(publicKey, apiPassword, baseUrl)
+    return _Geideapay(
+            publicKey, apiPassword, serverEnvironmentModel!.apiBaseUrl)
         .cancel(cancelRequestBody: cancelRequestBody);
   }
 
@@ -279,7 +287,8 @@ class GeideapayPlugin {
       {required RefundRequestBody refundRequestBody}) {
     _performChecks();
 
-    return _Geideapay(publicKey, apiPassword, baseUrl)
+    return _Geideapay(
+            publicKey, apiPassword, serverEnvironmentModel!.apiBaseUrl)
         .voidOperation(refundRequestBody: refundRequestBody);
   }
 
@@ -287,7 +296,8 @@ class GeideapayPlugin {
       {required CaptureRequestBody captureRequestBody}) {
     _performChecks();
 
-    return _Geideapay(publicKey, apiPassword, baseUrl)
+    return _Geideapay(
+            publicKey, apiPassword, serverEnvironmentModel!.apiBaseUrl)
         .capture(captureRequestBody: captureRequestBody);
   }
 
@@ -296,7 +306,8 @@ class GeideapayPlugin {
       required CheckoutOptions checkoutOptions}) async {
     _performChecks();
 
-    final _geideapay = _Geideapay(publicKey, apiPassword, baseUrl);
+    final _geideapay =
+        _Geideapay(publicKey, apiPassword, serverEnvironmentModel!.apiBaseUrl);
 
     CheckoutRequestBody checkoutRequestBodyOfQRCode =
         CheckoutRequestBody(checkoutOptions, null);
