@@ -360,12 +360,7 @@ class GeideapayPlugin {
         detailedResponseMessage: Strings.unKnownResponse, responseCode: "-1");
     PaymentIntentApiResponse? paymentIntentApiResponse;
 
-    Future.delayed(const Duration(seconds: 10)).then((value) async {
-      paymentIntentApiResponse = await _geideapay.getOrderId(
-          paymentIntentId: base64imageApiResponse.paymentIntentId.toString());
-      Utils.printLog(paymentIntentApiResponse);
-    });
-
+    bool shouldCheckOrderId = true;
     bool shouldCheckOrderDetail = true;
 
     await Navigator.push(
@@ -387,6 +382,20 @@ class GeideapayPlugin {
           infoTitle3: checkoutOptions.qrConfiguration?.qrInfoTitle3,
           infoTitle4: checkoutOptions.qrConfiguration?.qrInfoTitle4,
           onTimeChange: () async {
+            if ((paymentIntentApiResponse == null ||
+                    (paymentIntentApiResponse != null &&
+                        paymentIntentApiResponse
+                                ?.paymentIntent?.orders?.isEmpty ==
+                            true)) &&
+                shouldCheckOrderId) {
+              shouldCheckOrderId = false;
+              paymentIntentApiResponse = await _geideapay.getOrderId(
+                  paymentIntentId:
+                      base64imageApiResponse.paymentIntentId.toString());
+              Utils.printLog(paymentIntentApiResponse);
+              shouldCheckOrderId = true;
+            }
+
             if ((paymentIntentApiResponse?.paymentIntent?.orders?.length ?? 0) >
                     0 &&
                 shouldCheckOrderDetail) {
