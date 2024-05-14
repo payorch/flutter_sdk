@@ -46,7 +46,7 @@ class QRCodeScreen extends StatefulWidget {
 
 class QRCodeScreenState extends State<QRCodeScreen> {
   final CountDownController _controller = CountDownController();
-  final int _duration = 90;
+  final int _duration = 720;
   int lastLoadSecond = 0;
 
   @override
@@ -215,6 +215,6 @@ class QRCodeScreenState extends State<QRCodeScreen> {
             ),
           ),
         ),
-        onWillPop: () => Future.value(false));
+        onWillPop: () => Future.value(true));
   }
 }
