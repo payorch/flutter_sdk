@@ -2,6 +2,7 @@ import 'package:geideapay/models/address.dart';
 import 'package:geideapay/models/paymentIntent.dart';
 import 'package:geideapay/models/paymentMethod.dart';
 import 'package:geideapay/models/statementDescriptor.dart';
+import 'package:geideapay/models/summary.dart';
 import 'package:geideapay/models/transaction.dart';
 
 class Order {
@@ -62,6 +63,10 @@ class Order {
 
   List<Transaction>? transactions;
 
+  dynamic integrationType, items;
+
+  Summary? summary;
+
   Order({
     this.amount,
     this.tipAmount,
@@ -112,6 +117,9 @@ class Order {
     this.transactions,
     this.orderStatus,
     this.paymentIntentId,
+    this.integrationType,
+    this.items,
+    this.summary,
   });
 
   Order.fromMap(Map<String, dynamic> map) {
@@ -190,6 +198,9 @@ class Order {
         ? null
         : List<Transaction>.from(
             map['transactions'].map((x) => Transaction.fromMap(x)));
+    integrationType = map['integrationType'];
+    items = map['items'];
+    summary = map['summary'] == null ? null : Summary.fromMap(map['summary']);
   }
 
   @override
@@ -250,7 +261,10 @@ class Order {
       "statementDescriptor": statementDescriptor?.toMap(),
       "transactions": (transactions != null)
           ? transactions?.map((v) => v.toMap()).toList()
-          : null
+          : null,
+      "integrationType": integrationType,
+      "items": items,
+      "summary": summary?.toMap(),
     };
   }
 }
